@@ -59,18 +59,18 @@ def process_payment(order_data):
     if response.status_code == 200:
         payment_response = response.json()
         print(payment_response)
-        return redirect(payment_response['url'])
-        # update_order_status(order_data['id'], payment_response)
+        # return redirect(payment_response['url'])
+        update_order_status(order_data['id'], payment_response['url'])
     else:
         print('Payment failed:', response.text)
 
 def update_order_status(order_id, payment_response):
-    status = 'paid' if payment_response.get('success') else 'failed'
-
+    # status = 'paid' if payment_response.get('success') else 'failed'
+    print(payment_response)
     update_data = {
         'order': {
             'id': order_id,
-            'financial_status': status
+            'referring_site': payment_response
         }
     }
 
