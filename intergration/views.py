@@ -44,7 +44,7 @@ def verify_webhook(hmac_header, body):
 def process_payment(order_data):
     # Extract necessary details from order_data
     payment_details = {
-        'amount': float(order_data['total_price'])*100,
+        'amount': str(float(order_data['total_price'])*100),
         'currency': order_data['currency'],
         # 'customer_info': order_data['customer'],
         'customerReference':order_data['id'],
