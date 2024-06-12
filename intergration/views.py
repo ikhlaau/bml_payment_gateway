@@ -10,11 +10,11 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 # Load your settings or environment variables
-SHOPIFY_WEBHOOK_SECRET = 'your-shopify-webhook-secret'
-SHOPIFY_API_KEY = 'your-shopify-api-key'
+SHOPIFY_WEBHOOK_SECRET = 'b35fd35dabc267ac0b1e9f2a1c91b67a'
+SHOPIFY_API_KEY = '6e6e4347ad0221e2fb799d32ba4a7e25'
 SHOPIFY_PASSWORD = 'your-shopify-password'
-SHOP_NAME = 'your-shop-name'
-
+SHOP_NAME = '2e3894-da'
+x = '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'
 def hello(requests):
     return HttpResponse("return this string")
 
@@ -46,17 +46,20 @@ def process_payment(order_data):
     payment_details = {
         'amount': order_data['total_price'],
         'currency': order_data['currency'],
-        'customer_info': order_data['customer'],
+        # 'customer_info': order_data['customer'],
+        'customerReference':order_data['id'],
+        'localId':order_data['id']
         # Additional details as required by your payment gateway
     }
     print(order_data)
 
-    # Send request to your custom payment gateway
-    response = requests.post('https://your-payment-gateway.com/api/payments', json=payment_details)
-    
+    # Send request to your custom payment gatewa
+    response = requests.post('https://api.merchants.bankofmaldives.com.mv/public/v2/transactions', json=payment_details, headers={"Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjM2ZTIwNzhlLWZhM2ItNGMyZi1iNDJlLWM5MDc4Njg5YWYyOSIsImNvbXBhbnlJZCI6IjYxMTgwNDA5ZmQ0NTRmMDAwODUyMmQ5MCIsImlhdCI6MTYyODk2Mzg0OSwiZXhwIjo0Nzg0NjM3NDQ5fQ.Y1Vvyf1BRrEjGSSfvkwPH0FUZtDvVFJ8vwoLmKVH7FU"})
     if response.status_code == 200:
         payment_response = response.json()
-        update_order_status(order_data['id'], payment_response)
+        print(payment_response)
+        return redirect(payment_response['url'])
+        # update_order_status(order_data['id'], payment_response)
     else:
         print('Payment failed:', response.text)
 
