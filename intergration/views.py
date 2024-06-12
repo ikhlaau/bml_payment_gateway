@@ -33,7 +33,7 @@ def order_created(request):
         process_payment(order_data)
 
         return HttpResponse('Webhook received', status=200)
-gi
+
     return HttpResponse('Method not allowed', status=405)
 
 def verify_webhook(hmac_header, body):
