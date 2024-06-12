@@ -33,7 +33,7 @@ def order_created(request):
         process_payment(order_data)
 
         return HttpResponse('Webhook received', status=200)
-
+gi
     return HttpResponse('Method not allowed', status=405)
 
 def verify_webhook(hmac_header, body):
@@ -44,7 +44,7 @@ def verify_webhook(hmac_header, body):
 def process_payment(order_data):
     # Extract necessary details from order_data
     payment_details = {
-        'amount': order_data['total_price'],
+        'amount': float(order_data['total_price'])*100,
         'currency': order_data['currency'],
         # 'customer_info': order_data['customer'],
         'customerReference':order_data['id'],
