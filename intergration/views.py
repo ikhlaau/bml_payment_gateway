@@ -47,8 +47,8 @@ def process_payment(order_data):
         'amount': (float(order_data['total_price'])*100),
         'currency': order_data['currency'],
         # 'customer_info': order_data['customer'],
-        'customerReference':order_data['id'],
-        'localId':order_data['id'],
+        'customerReference':str(order_data['id']),
+        'localId':str(order_data['id']),
         "redirectUrl":"https://google.com/test/1"
         # Additional details as required by your payment gateway
     }
