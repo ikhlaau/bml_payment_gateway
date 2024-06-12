@@ -12,8 +12,9 @@ from django.views.decorators.csrf import csrf_exempt
 # Load your settings or environment variables
 SHOPIFY_WEBHOOK_SECRET = 'b35fd35dabc267ac0b1e9f2a1c91b67a'
 SHOPIFY_API_KEY = '6e6e4347ad0221e2fb799d32ba4a7e25'
-# SHOPIFY_PASSWORD = 'your-shopify-password'
+SHOPIFY_PASSWORD = 'your-shopify-password'
 SHOP_NAME = '2e3894-da'
+
 def hello(requests):
     return HttpResponse("return this string")
 
