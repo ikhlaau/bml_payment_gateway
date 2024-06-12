@@ -24,6 +24,7 @@ def order_created(request):
         # Verify the webhook
         hmac_header = request.headers.get('X-Shopify-Hmac-Sha256')
         body = request.body
+        print(body)
         if not verify_webhook(hmac_header, body):
             return HttpResponse('Forbidden', status=403)
 
