@@ -44,14 +44,15 @@ def verify_webhook(hmac_header, body):
 def process_payment(order_data):
     # Extract necessary details from order_data
     payment_details = {
-        'amount': str(float(order_data['total_price'])*100),
+        'amount': (float(order_data['total_price'])*100),
         'currency': order_data['currency'],
         # 'customer_info': order_data['customer'],
         'customerReference':order_data['id'],
-        'localId':order_data['id']
+        'localId':order_data['id'],
+        "redirectUrl":"https://google.com/test/1"
         # Additional details as required by your payment gateway
     }
-    print(order_data)
+    print(payment_details)
 
     # Send request to your custom payment gatewa
     response = requests.post('https://api.merchants.bankofmaldives.com.mv/public/v2/transactions', json=payment_details, headers={"Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjM2ZTIwNzhlLWZhM2ItNGMyZi1iNDJlLWM5MDc4Njg5YWYyOSIsImNvbXBhbnlJZCI6IjYxMTgwNDA5ZmQ0NTRmMDAwODUyMmQ5MCIsImlhdCI6MTYyODk2Mzg0OSwiZXhwIjo0Nzg0NjM3NDQ5fQ.Y1Vvyf1BRrEjGSSfvkwPH0FUZtDvVFJ8vwoLmKVH7FU"})
