@@ -15,6 +15,9 @@ SHOPIFY_API_KEY = 'your-shopify-api-key'
 SHOPIFY_PASSWORD = 'your-shopify-password'
 SHOP_NAME = 'your-shop-name'
 
+def hello(requests):
+    return HttpResponse("return this string")
+
 @csrf_exempt
 def order_created(request):
     if request.method == 'POST':
@@ -45,6 +48,7 @@ def process_payment(order_data):
         'customer_info': order_data['customer'],
         # Additional details as required by your payment gateway
     }
+    print(order_data)
 
     # Send request to your custom payment gateway
     response = requests.post('https://your-payment-gateway.com/api/payments', json=payment_details)
