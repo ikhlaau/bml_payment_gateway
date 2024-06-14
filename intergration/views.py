@@ -73,13 +73,13 @@ def process_payment(order_data):
         "redirectUrl":"https://google.com/test/1"
         # Additional details as required by your payment gateway
     }
-    print(payment_details)
+    # print(payment_details)
 
     # Send request to your custom payment gatewa
     response = requests.post('https://api.merchants.bankofmaldives.com.mv/public/v2/transactions', json=payment_details, headers={"Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjM2ZTIwNzhlLWZhM2ItNGMyZi1iNDJlLWM5MDc4Njg5YWYyOSIsImNvbXBhbnlJZCI6IjYxMTgwNDA5ZmQ0NTRmMDAwODUyMmQ5MCIsImlhdCI6MTYyODk2Mzg0OSwiZXhwIjo0Nzg0NjM3NDQ5fQ.Y1Vvyf1BRrEjGSSfvkwPH0FUZtDvVFJ8vwoLmKVH7FU"})
     payment_response = response.json()
     if response.status_code == 201:
-        print(payment_response)
+        # print(payment_response)
         order.payment_url = payment_response['url']
         order.payment_status = 'pending_payment'
         order.save()
