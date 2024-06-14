@@ -62,7 +62,7 @@ def verify_webhook(hmac_header, body):
 
 def process_payment(order_data):
     # Extract necessary details from order_data
-    order = ShopifyOrder.objects.filter(order_id=order_data['order_id']).first()
+    order = ShopifyOrder.objects.filter(order_id=order_data['id']).first()
     payment_details = {
         'amount': round(float(order_data['total_price'])*15.42)*100,
         'currency': 'MVR',
