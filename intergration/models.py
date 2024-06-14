@@ -33,4 +33,4 @@ class ShopifyOrder(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     def __str__(self):
-        return str(self.number) + " " + str(self.name)
+        return str(self.order_id) + " " + str(self.order_number)
