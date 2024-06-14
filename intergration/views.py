@@ -48,8 +48,8 @@ def order_created(request):
         order.total_price = order_data['total_price']
         order.presentment_currency = order_data['presentment_currency']
         order.payment_status = 'pending_gateway_url'
-        order = order.save()
-        process_payment(order_data,order)
+        order_done = order.save()
+        process_payment(order_data,order_done)
 
         return HttpResponse('Webhook received', status=200)
 
