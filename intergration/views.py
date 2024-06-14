@@ -48,8 +48,8 @@ def order_created(request):
         order.total_price = order_data['total_price']
         order.presentment_currency = order_data['presentment_currency']
         order.payment_status = 'pending_gateway_url'
-        order_done = order.save()
-        process_payment(order_data,order_done)
+        order.save()
+        process_payment(order_data)
 
         return HttpResponse('Webhook received', status=200)
 
@@ -60,8 +60,9 @@ def verify_webhook(hmac_header, body):
     calculated_hmac = hash.hex()
     return hmac.compare_digest(calculated_hmac, hmac_header)
 
-def process_payment(order_data,order):
+def process_payment(order_data):
     # Extract necessary details from order_data
+    order = ShopifyOrder.objects.filter(order_id=order_data['order_id']).first()
     payment_details = {
         'amount': round(float(order_data['total_price'])*15.42)*100,
         'currency': 'MVR',
