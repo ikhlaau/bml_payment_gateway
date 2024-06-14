@@ -27,8 +27,8 @@ def order_created(request):
         # Verify the webhook
         hmac_header = request.headers.get('X-Shopify-Hmac-Sha256')
         body = request.body
-        print(request.headers)
-        print(body)
+        # print(request.headers)
+        # print(body)
         # if not verify_webhook(hmac_header, body):
         #     return HttpResponse('Forbidden', status=403)
 
@@ -77,7 +77,7 @@ def process_payment(order_data,order):
     response = requests.post('https://api.merchants.bankofmaldives.com.mv/public/v2/transactions', json=payment_details, headers={"Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjM2ZTIwNzhlLWZhM2ItNGMyZi1iNDJlLWM5MDc4Njg5YWYyOSIsImNvbXBhbnlJZCI6IjYxMTgwNDA5ZmQ0NTRmMDAwODUyMmQ5MCIsImlhdCI6MTYyODk2Mzg0OSwiZXhwIjo0Nzg0NjM3NDQ5fQ.Y1Vvyf1BRrEjGSSfvkwPH0FUZtDvVFJ8vwoLmKVH7FU"})
     payment_response = response.json()
     if response.status_code == 201:
-        # print(payment_response)
+        print(payment_response)
         order.payment_url = payment_response['url']
         order.payment_status = 'pending_payment'
         order.save()
@@ -85,7 +85,7 @@ def process_payment(order_data,order):
         print('Payment Success:')
     else:
         print('Payment failed:')
-    update_order_status(order_data['id'], payment_response['url'])
+    # update_order_status(order_data['id'], payment_response['url'])
 
 
 def update_order_status(order_id, payment_response):
