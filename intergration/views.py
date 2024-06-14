@@ -18,7 +18,8 @@ SHOPIFY_PASSWORD = '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'
 SHOP_NAME = '2e3894-da'
 
 def hello(requests):
-
+    body = request.body
+    print(body)
     return HttpResponse("return this string")
 
 @csrf_exempt
