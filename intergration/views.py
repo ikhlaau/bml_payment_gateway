@@ -43,6 +43,7 @@ def order_created(request):
         order.order_number = order_data['order_number']
         order.order_status_url = order_data['order_status_url']
         order.token = order_data['token']
+        order.reference = order_data['reference']
         order.total_price = order_data['total_price']
         order.presentment_currency = order_data['presentment_currency']
         order.payment_status = 'pending_gateway_url'

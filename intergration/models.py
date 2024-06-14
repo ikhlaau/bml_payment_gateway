@@ -25,6 +25,7 @@ class ShopifyOrder(models.Model):
     order_number = models.CharField(max_length=200,null=False,blank=False)
     order_status_url = models.CharField(max_length=250,null=False,blank=False)
     token = models.CharField(max_length=200,null=False,blank=False)
+    reference = models.CharField(max_length=200,null=False,blank=False)
     total_price = models.CharField(max_length=200,null=False,blank=False)
     presentment_currency = models.CharField(max_length=200,null=False,blank=False)
     payment_url = models.CharField(max_length=200,null=True,blank=True)
