@@ -70,7 +70,12 @@ def update_order_status(order_id, payment_response):
     update_data = {
         'order': {
             'id': order_id,
-            'referring_site': payment_response
+            'note_attributes': [
+                    {
+                        'name': "custom_redirect_url",
+                        'value': payment_response
+                    }
+                ]
         }
     }
 
