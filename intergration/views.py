@@ -17,7 +17,7 @@ SHOPIFY_PASSWORD = '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'
 SHOP_NAME = '2e3894-da'
 
 def hello(requests):
-    
+
     return HttpResponse("return this string")
 
 @csrf_exempt
@@ -33,7 +33,21 @@ def order_created(request):
 
         # Process the order data and initiate payment
         order_data = json.loads(body)
-        process_payment(order_data)
+
+        order = ShopifyOrder()
+        order.order_id = order_data['id']
+        order.checkout_id = order_data['checkout_id']
+        order.cart_token = order_data['cart_token']
+        order.checkout_token = order_data['checkout_token']
+        order.confirmation_number = morder_data['confirmation_number']
+        order.order_number = order_data['order_number']
+        order.order_status_url = order_data['order_status_url']
+        order.token = order_data['token']
+        order.total_price = order_data['total_price']
+        order.presentment_currency = order_data['presentment_currency']
+        order.payment_status = 'pending_gateway_url'
+        order = order.save()
+        process_payment(order_data,order)
 
         return HttpResponse('Webhook received', status=200)
 
@@ -44,7 +58,7 @@ def verify_webhook(hmac_header, body):
     calculated_hmac = hash.hex()
     return hmac.compare_digest(calculated_hmac, hmac_header)
 
-def process_payment(order_data):
+def process_payment(order_data,order):
     # Extract necessary details from order_data
     payment_details = {
         'amount': round(float(order_data['total_price'])*15.42)*100,
@@ -62,7 +76,10 @@ def process_payment(order_data):
     payment_response = response.json()
     if response.status_code == 201:
         # print(payment_response)
-        return redirect(payment_response['url'])
+        order.payment_url = payment_response['url']
+        order.payment_status = 'pending_payment'
+        order.save()
+        # return redirect(payment_response['url'])
         print('Payment Success:')
     else:
         print('Payment failed:')
