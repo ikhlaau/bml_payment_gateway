@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 # Load your settings or environment variables
 SHOPIFY_WEBHOOK_SECRET = 'b35fd35dabc267ac0b1e9f2a1c91b67a'
 SHOPIFY_API_KEY = '6e6e4347ad0221e2fb799d32ba4a7e25'
-SHOPIFY_PASSWORD = 'b35fd35dabc267ac0b1e9f2a1c91b67a'
+SHOPIFY_PASSWORD = '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'
 SHOP_NAME = '2e3894-da'
 
 def hello(requests):
@@ -57,15 +57,15 @@ def process_payment(order_data):
 
     # Send request to your custom payment gatewa
     response = requests.post('https://api.merchants.bankofmaldives.com.mv/public/v2/transactions', json=payment_details, headers={"Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjM2ZTIwNzhlLWZhM2ItNGMyZi1iNDJlLWM5MDc4Njg5YWYyOSIsImNvbXBhbnlJZCI6IjYxMTgwNDA5ZmQ0NTRmMDAwODUyMmQ5MCIsImlhdCI6MTYyODk2Mzg0OSwiZXhwIjo0Nzg0NjM3NDQ5fQ.Y1Vvyf1BRrEjGSSfvkwPH0FUZtDvVFJ8vwoLmKVH7FU"})
-    print(response.status_code)
     payment_response = response.json()
-    update_order_status(order_data['id'], payment_response['url'])
-    if response.status_code == 200:
-        print(payment_response)
+    if response.status_code == 201:
+        # print(payment_response)
         # return redirect(payment_response['url'])
-        update_order_status(order_data['id'], payment_response['url'])
+        print('Payment Success:')
     else:
         print('Payment failed:')
+    update_order_status(order_data['id'], payment_response['url'])
+
 
 def update_order_status(order_id, payment_response):
     # status = 'paid' if payment_response.get('success') else 'failed'
@@ -83,6 +83,7 @@ def update_order_status(order_id, payment_response):
     }
 
     url = f'https://{SHOPIFY_API_KEY}:{SHOPIFY_PASSWORD}@{SHOP_NAME}.myshopify.com/admin/api/2023-01/orders/{order_id}.json'
+    print(url)
     response = requests.put(url, json=update_data)
 
     if response.status_code == 200:
