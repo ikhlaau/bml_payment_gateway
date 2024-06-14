@@ -40,7 +40,7 @@ def order_created(request):
         order.checkout_id = order_data['checkout_id']
         order.cart_token = order_data['cart_token']
         order.checkout_token = order_data['checkout_token']
-        order.confirmation_number = morder_data['confirmation_number']
+        order.confirmation_number = order_data['confirmation_number']
         order.order_number = order_data['order_number']
         order.order_status_url = order_data['order_status_url']
         order.token = order_data['token']
