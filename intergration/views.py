@@ -11,11 +11,12 @@ from django.views.decorators.csrf import csrf_exempt
 
 # Load your settings or environment variables
 SHOPIFY_WEBHOOK_SECRET = 'b35fd35dabc267ac0b1e9f2a1c91b67a'
-SHOPIFY_API_KEY = '6e6e4347ad0221e2fb799d32ba4a7e25'
+SHOPIFY_API_KEY = ' '
 SHOPIFY_PASSWORD = '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'
 SHOP_NAME = '2e3894-da'
 
 def hello(requests):
+    
     return HttpResponse("return this string")
 
 @csrf_exempt
@@ -60,7 +61,7 @@ def process_payment(order_data):
     payment_response = response.json()
     if response.status_code == 201:
         # print(payment_response)
-        # return redirect(payment_response['url'])
+        return redirect(payment_response['url'])
         print('Payment Success:')
     else:
         print('Payment failed:')
