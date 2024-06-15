@@ -19,8 +19,10 @@ SHOPIFY_PASSWORD = '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'
 SHOP_NAME = '2e3894-da'
 
 def hello(request):
+    time.sleep(3)
     order_id = request.GET.get('order_id')
     order = ShopifyOrder.objects.filter(order_id=order_id).first()
+    print(order)
     if order == None:
         time.sleep(3)
         order = ShopifyOrder.objects.filter(order_id=order_id).first()
