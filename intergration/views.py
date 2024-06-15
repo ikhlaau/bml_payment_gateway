@@ -26,9 +26,14 @@ def hello(request):
     if order == None:
         time.sleep(3)
         order = ShopifyOrder.objects.filter(order_id=order_id).first()
+    print(order.payment_status)
     if order.payment_status == 'pending_payment':
+        print('ok')
         redirect(order.payment_url)
+    else:
+        print('not ok')
 
+    redirect(order.payment_url)
     return HttpResponse("return this string")
 
 @csrf_exempt
