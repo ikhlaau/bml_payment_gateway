@@ -33,11 +33,11 @@ def checkout(request):
         return redirect(order.payment_url)
     if order.payment_status == 'pending_gateway_url':
         payment_details = {
-            'amount': round(float(order.total_price)*15.42)*100,
+            'amount': round(float(order.total_price)*15.42*100),
             'currency': 'MVR',
             'customerReference':str(order.order_id),
             'localId':str(order.order_id),
-            "redirectUrl":"https://bml-payment-gateway-zwkoz.ondigitalocean.app/payments/checkout"
+            "redirectUrl":"https://bml-payment-gateway-zwkoz.ondigitalocean.app/payments/from_bml"
         }
 
         # Send request to your custom payment gatewa
@@ -57,11 +57,10 @@ def check_order_status(request):
 
 
 def from_bml(request):
-    if request.method == 'POST':
-        body = request.body
-        print(body)
-        # order = ShopifyOrder.objects.filter(order_id=order_id).first()
-        return HttpResponse('Webhook received', status=200)
+    body = request.body
+    print(body)
+    # order = ShopifyOrder.objects.filter(order_id=order_id).first()
+    return HttpResponse('Webhook received', status=200)
 
 @csrf_exempt
 def order_created(request):
@@ -101,11 +100,11 @@ def process_payment(order_data):
     # Extract necessary details from order_data
     order = ShopifyOrder.objects.filter(order_id=order_data['id']).first()
     payment_details = {
-        'amount': round(float(order_data['total_price'])*15.42)*100,
+        'amount': round(float(order.total_price)*15.42*100),
         'currency': 'MVR',
         'customerReference':str(order_data['id']),
         'localId':str(order_data['id']),
-        "redirectUrl":"https://bml-payment-gateway-zwkoz.ondigitalocean.app/payments/checkout"
+        "redirectUrl":"https://bml-payment-gateway-zwkoz.ondigitalocean.app/payments/from_bml"
     }
 
     # Send request to your custom payment gatewa
