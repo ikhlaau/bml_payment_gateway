@@ -18,21 +18,44 @@ SHOPIFY_API_KEY = ' '
 SHOPIFY_PASSWORD = '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'
 SHOP_NAME = '2e3894-da'
 
-def hello(request):
-    time.sleep(3)
+def checkout(request):
+    time.sleep(5)
     order_id = request.GET.get('order_id')
     order = ShopifyOrder.objects.filter(order_id=order_id).first()
     print(order)
-    if order == None:
+    if order:
+        pass
+    else:
         time.sleep(3)
         order = ShopifyOrder.objects.filter(order_id=order_id).first()
-    print(order.payment_status)
+
     if order.payment_status == 'pending_payment':
-        print('ok')
         return redirect(order.payment_url)
-    else:
-        print('not ok')
+    if order.payment_status == 'pending_gateway_url':
+        order = ShopifyOrder.objects.filter(order_id=order_data['id']).first()
+        payment_details = {
+            'amount': round(float(order.total_price)*15.42)*100,
+            'currency': 'MVR',
+            'customerReference':str(order.order_id),
+            'localId':str(order.order_id),
+            "redirectUrl":"https://bml-payment-gateway-zwkoz.ondigitalocean.app/payments/checkout"
+        }
+
+        # Send request to your custom payment gatewa
+        response = requests.post('https://api.merchants.bankofmaldives.com.mv/public/v2/transactions', json=payment_details, headers={"Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjM2ZTIwNzhlLWZhM2ItNGMyZi1iNDJlLWM5MDc4Njg5YWYyOSIsImNvbXBhbnlJZCI6IjYxMTgwNDA5ZmQ0NTRmMDAwODUyMmQ5MCIsImlhdCI6MTYyODk2Mzg0OSwiZXhwIjo0Nzg0NjM3NDQ5fQ.Y1Vvyf1BRrEjGSSfvkwPH0FUZtDvVFJ8vwoLmKVH7FU"})
+        payment_response = response.json()
+        if response.status_code == 201:
+            order.payment_url = payment_response['url']
+            order.payment_status = 'pending_payment'
+            order.save()
         return redirect(order.payment_url)
+
+def from_bml(request):
+    if request.method == 'POST':
+        body = request.body
+        print(body)
+        # order = ShopifyOrder.objects.filter(order_id=order_id).first()
+        return HttpResponse('Webhook received', status=200)
 
 @csrf_exempt
 def order_created(request):
@@ -40,8 +63,6 @@ def order_created(request):
         # Verify the webhook
         hmac_header = request.headers.get('X-Shopify-Hmac-Sha256')
         body = request.body
-        # print(request.headers)
-        # print(body)
         # if not verify_webhook(hmac_header, body):
         #     return HttpResponse('Forbidden', status=403)
 
@@ -62,10 +83,8 @@ def order_created(request):
         order.presentment_currency = order_data['presentment_currency']
         order.payment_status = 'pending_gateway_url'
         order.save()
-        process_payment(order_data)
 
         return HttpResponse('Webhook received', status=200)
-
     return HttpResponse('Method not allowed', status=405)
 
 def verify_webhook(hmac_header, body):
@@ -79,23 +98,18 @@ def process_payment(order_data):
     payment_details = {
         'amount': round(float(order_data['total_price'])*15.42)*100,
         'currency': 'MVR',
-        # 'customer_info': order_data['customer'],
         'customerReference':str(order_data['id']),
         'localId':str(order_data['id']),
-        "redirectUrl":"https://google.com/test/1"
-        # Additional details as required by your payment gateway
+        "redirectUrl":"https://bml-payment-gateway-zwkoz.ondigitalocean.app/payments/checkout"
     }
-    # print(payment_details)
 
     # Send request to your custom payment gatewa
     response = requests.post('https://api.merchants.bankofmaldives.com.mv/public/v2/transactions', json=payment_details, headers={"Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjM2ZTIwNzhlLWZhM2ItNGMyZi1iNDJlLWM5MDc4Njg5YWYyOSIsImNvbXBhbnlJZCI6IjYxMTgwNDA5ZmQ0NTRmMDAwODUyMmQ5MCIsImlhdCI6MTYyODk2Mzg0OSwiZXhwIjo0Nzg0NjM3NDQ5fQ.Y1Vvyf1BRrEjGSSfvkwPH0FUZtDvVFJ8vwoLmKVH7FU"})
     payment_response = response.json()
     if response.status_code == 201:
-        # print(payment_response)
         order.payment_url = payment_response['url']
         order.payment_status = 'pending_payment'
         order.save()
-        # return redirect(payment_response['url'])
         print('Payment Success:')
     else:
         print('Payment failed:')
