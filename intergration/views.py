@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from intergration.models import *
+import time
 
 # Create your views here.
 import hmac
@@ -20,7 +21,12 @@ SHOP_NAME = '2e3894-da'
 def hello(request):
     order_id = request.GET.get('order_id')
     order = ShopifyOrder.objects.filter(order_id=order_id).first()
-    redirect(order.payment_url)
+    if order == None:
+        time.sleep(3)
+        order = ShopifyOrder.objects.filter(order_id=order_id).first()
+        redirect(order.payment_url)
+    else:
+        redirect(order.payment_url)
     return HttpResponse("return this string")
 
 @csrf_exempt
