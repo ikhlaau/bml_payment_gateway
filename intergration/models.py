@@ -30,6 +30,7 @@ class ShopifyOrder(models.Model):
     presentment_currency = models.CharField(max_length=200,null=False,blank=False)
     payment_url = models.CharField(max_length=200,null=True,blank=True)
     payment_status = models.CharField(max_length=200,null=False,blank=False)
+    gateway_id = models.CharField(max_length=200,null=False,blank=False)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     def __str__(self):

@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from intergration.models import *
 import time
+import hashlib
 
 # Create your views here.
 import hmac
@@ -43,10 +44,11 @@ def checkout(request):
         # Send request to your custom payment gatewa
         response = requests.post('https://api.merchants.bankofmaldives.com.mv/public/v2/transactions', json=payment_details, headers={"Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjM2ZTIwNzhlLWZhM2ItNGMyZi1iNDJlLWM5MDc4Njg5YWYyOSIsImNvbXBhbnlJZCI6IjYxMTgwNDA5ZmQ0NTRmMDAwODUyMmQ5MCIsImlhdCI6MTYyODk2Mzg0OSwiZXhwIjo0Nzg0NjM3NDQ5fQ.Y1Vvyf1BRrEjGSSfvkwPH0FUZtDvVFJ8vwoLmKVH7FU"})
         payment_response = response.json()
-        print(payment_response)
+        # print(payment_response)
         if response.status_code == 201:
             order.payment_url = payment_response['url']
             order.payment_status = 'pending_payment'
+            order.gateway_id = payment_response['id']
             order.save()
         return redirect(order.payment_url)
 
@@ -62,9 +64,16 @@ def from_bml(request):
     transactionId = request.GET.get('transactionId')
     state = request.GET.get('state')
     signature = request.GET.get('signature')
-    
-    # order = ShopifyOrder.objects.filter(order_id=order_id).first()
-    return HttpResponse('Webhook received', status=200)
+
+    order = ShopifyOrder.objects.filter(gateway_id=transactionId).first()
+
+    mvr_amount  =round(float(order.total_price)*15.42*100)
+    currency = 'MVR'
+
+    check_signature_string = 'amount=' + mvr_amount + '&currency=' + currency + '&apiKey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjM2ZTIwNzhlLWZhM2ItNGMyZi1iNDJlLWM5MDc4Njg5YWYyOSIsImNvbXBhbnlJZCI6IjYxMTgwNDA5ZmQ0NTRmMDAwODUyMmQ5MCIsImlhdCI6MTYyODk2Mzg0OSwiZXhwIjo0Nzg0NjM3NDQ5fQ.Y1Vvyf1BRrEjGSSfvkwPH0FUZtDvVFJ8vwoLmKVH7FU'
+    hash_object = hashlib.sha1(check_signature_string)
+    pbHash = hash_object.hexdigest()
+    return JsonResponse({'pbHash': pbHash,'transactionId':transactionId,'signature':signature})
 
 @csrf_exempt
 def order_created(request):
