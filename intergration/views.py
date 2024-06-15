@@ -19,14 +19,14 @@ SHOPIFY_PASSWORD = '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'
 SHOP_NAME = '2e3894-da'
 
 def checkout(request):
-    time.sleep(5)
+    time.sleep(3)
     order_id = request.GET.get('order_id')
     order = ShopifyOrder.objects.filter(order_id=order_id).first()
     print(order)
     if order:
         pass
     else:
-        time.sleep(3)
+        time.sleep(5)
         order = ShopifyOrder.objects.filter(order_id=order_id).first()
 
     if order.payment_status == 'pending_payment':
@@ -43,6 +43,7 @@ def checkout(request):
         # Send request to your custom payment gatewa
         response = requests.post('https://api.merchants.bankofmaldives.com.mv/public/v2/transactions', json=payment_details, headers={"Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjM2ZTIwNzhlLWZhM2ItNGMyZi1iNDJlLWM5MDc4Njg5YWYyOSIsImNvbXBhbnlJZCI6IjYxMTgwNDA5ZmQ0NTRmMDAwODUyMmQ5MCIsImlhdCI6MTYyODk2Mzg0OSwiZXhwIjo0Nzg0NjM3NDQ5fQ.Y1Vvyf1BRrEjGSSfvkwPH0FUZtDvVFJ8vwoLmKVH7FU"})
         payment_response = response.json()
+        print(payment_response)
         if response.status_code == 201:
             order.payment_url = payment_response['url']
             order.payment_status = 'pending_payment'
@@ -57,8 +58,11 @@ def check_order_status(request):
 
 
 def from_bml(request):
-    body = request.body
-    print(body)
+
+    transactionId = request.GET.get('transactionId')
+    state = request.GET.get('state')
+    signature = request.GET.get('signature')
+    
     # order = ShopifyOrder.objects.filter(order_id=order_id).first()
     return HttpResponse('Webhook received', status=200)
 
