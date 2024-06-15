@@ -66,7 +66,6 @@ def order_created(request):
         # if not verify_webhook(hmac_header, body):
         #     return HttpResponse('Forbidden', status=403)
 
-        # Process the order data and initiate payment
         order_data = json.loads(body)
 
         order = ShopifyOrder()
