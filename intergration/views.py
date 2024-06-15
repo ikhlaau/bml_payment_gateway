@@ -29,12 +29,10 @@ def hello(request):
     print(order.payment_status)
     if order.payment_status == 'pending_payment':
         print('ok')
-        redirect(order.payment_url)
+        return redirect(order.payment_url)
     else:
         print('not ok')
-
-    redirect(order.payment_url)
-    return HttpResponse("return this string")
+        return redirect(order.payment_url)
 
 @csrf_exempt
 def order_created(request):
