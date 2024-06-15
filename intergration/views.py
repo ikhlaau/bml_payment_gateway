@@ -18,8 +18,9 @@ SHOPIFY_PASSWORD = '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'
 SHOP_NAME = '2e3894-da'
 
 def hello(request):
-    body = request.body
-    print(body)
+    order_id = request.GET.get('order_id')
+    order = ShopifyOrder.objects.filter(order_id=order_id).first()
+    redirect(order.payment_url)
     return HttpResponse("return this string")
 
 @csrf_exempt
