@@ -32,7 +32,6 @@ def checkout(request):
     if order.payment_status == 'pending_payment':
         return redirect(order.payment_url)
     if order.payment_status == 'pending_gateway_url':
-        order = ShopifyOrder.objects.filter(order_id=order_data['id']).first()
         payment_details = {
             'amount': round(float(order.total_price)*15.42)*100,
             'currency': 'MVR',
@@ -49,6 +48,13 @@ def checkout(request):
             order.payment_status = 'pending_payment'
             order.save()
         return redirect(order.payment_url)
+
+def check_order_status(request):
+    order_id = request.GET.get('order_id')
+    order = ShopifyOrder.objects.filter(order_id=order_id).first()
+
+    return JsonResponse({'payment_status': order.payment_status})
+
 
 def from_bml(request):
     if request.method == 'POST':
