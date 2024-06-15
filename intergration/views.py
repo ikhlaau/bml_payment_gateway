@@ -21,8 +21,6 @@ SHOP_NAME = '2e3894-da'
 def hello(request):
     time.sleep(3)
     order_id = request.GET.get('order_id')
-    print('get',request.GET.get('order_id'))
-    print('data',request.data.get('order_id'))
     order = ShopifyOrder.objects.filter(order_id=order_id).first()
     print(order)
     if order == None:
