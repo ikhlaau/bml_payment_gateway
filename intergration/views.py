@@ -27,12 +27,17 @@ def checkout(request):
     if order:
         pass
     else:
-        time.sleep(2)
+        time.sleep(1)
         order = ShopifyOrder.objects.filter(order_id=order_id).first()
+        if order:
+            pass
+        else:
+            time.sleep(1)
+            order = ShopifyOrder.objects.filter(order_id=order_id).first()
 
     if order.payment_status == 'pending_payment':
         return redirect(order.payment_url)
-    if order.payment_status == 'pending_gateway_url':
+    elif order.payment_status == 'pending_gateway_url':
         payment_details = {
             'amount': round(float(order.total_price)*15.42*100),
             'currency': 'MVR',
@@ -51,6 +56,10 @@ def checkout(request):
             order.gateway_id = payment_response['id']
             order.save()
         return redirect(order.payment_url)
+    elif order.payment_status == 'CONFIRMED':
+        return redirect(order.order_status_url)
+    else:
+        return JsonResponse({'Error': 'Payment failed.'})
 
 def check_order_status(request):
     order_id = request.GET.get('order_id')
@@ -64,18 +73,25 @@ def from_bml(request):
     transactionId = request.GET.get('transactionId')
     state = request.GET.get('state')
     signature = request.GET.get('signature')
+    if state == "CONFIRMED":
+        order = ShopifyOrder.objects.filter(gateway_id=transactionId).first()
 
-    order = ShopifyOrder.objects.filter(gateway_id=transactionId).first()
+        mvr_amount  =round(float(order.total_price)*15.42*100)
+        currency = 'MVR'
 
-    mvr_amount  =round(float(order.total_price)*15.42*100)
-    currency = 'MVR'
-
-    check_signature_string = 'amount=' + str(mvr_amount) + '&currency=' + currency + '&apiKey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjM2ZTIwNzhlLWZhM2ItNGMyZi1iNDJlLWM5MDc4Njg5YWYyOSIsImNvbXBhbnlJZCI6IjYxMTgwNDA5ZmQ0NTRmMDAwODUyMmQ5MCIsImlhdCI6MTYyODk2Mzg0OSwiZXhwIjo0Nzg0NjM3NDQ5fQ.Y1Vvyf1BRrEjGSSfvkwPH0FUZtDvVFJ8vwoLmKVH7FU'
-    print(check_signature_string)
-    print(check_signature_string.encode())
-    sha_1 = hashlib.sha1()
-    sha_1.update(check_signature_string.encode('utf-8'))
-
+        check_signature_string = 'amount=' + str(mvr_amount) + '&currency=' + currency + '&apiKey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjM2ZTIwNzhlLWZhM2ItNGMyZi1iNDJlLWM5MDc4Njg5YWYyOSIsImNvbXBhbnlJZCI6IjYxMTgwNDA5ZmQ0NTRmMDAwODUyMmQ5MCIsImlhdCI6MTYyODk2Mzg0OSwiZXhwIjo0Nzg0NjM3NDQ5fQ.Y1Vvyf1BRrEjGSSfvkwPH0FUZtDvVFJ8vwoLmKVH7FU'
+        sha_1 = hashlib.sha1()
+        sha_1.update(check_signature_string.encode('utf-8'))
+        if signature ==sha_1.hexdigest():
+            order.payment_status = state
+            order.save()
+            
+        else:
+            return JsonResponse({'error':'Signature missmatch'})
+    else:
+        order.payment_status = state
+        order.save()
+        return JsonResponse({'error':'Payment failed.'})
     return JsonResponse({'transactionId':transactionId,'signature':signature,'sign_check':sha_1.hexdigest()})
 
 @csrf_exempt
