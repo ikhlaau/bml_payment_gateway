@@ -64,8 +64,12 @@ def checkout(request):
 def check_order_status(request):
     order_id = request.GET.get('order_id')
     order = ShopifyOrder.objects.filter(order_id=order_id).first()
+    status = 'Not paid'
+    if order:
+        if order.payment_status == 'CONFIRMED':
+            status  ='Paid'
 
-    return JsonResponse({'payment_status': order.payment_status})
+    return JsonResponse({'payment_status': status})
 
 
 def from_bml(request):
