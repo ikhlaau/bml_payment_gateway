@@ -74,9 +74,9 @@ def from_bml(request):
     print(check_signature_string)
     print(check_signature_string.encode())
     sha_1 = hashlib.sha1()
-    sha_1.update(check_signature_string.encode())
+    sha_1.update(check_signature_string.encode('utf-8'))
 
-    return JsonResponse({'pbHash': pbHash,'transactionId':transactionId,'signature':signature,'sign_check':sha_1.hexdigest()})
+    return JsonResponse({'transactionId':transactionId,'signature':signature,'sign_check':sha_1.hexdigest()})
 
 @csrf_exempt
 def order_created(request):
