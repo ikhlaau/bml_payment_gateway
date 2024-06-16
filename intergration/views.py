@@ -20,14 +20,14 @@ SHOPIFY_PASSWORD = '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'
 SHOP_NAME = '2e3894-da'
 
 def checkout(request):
-    time.sleep(3)
+    time.sleep(1)
     order_id = request.GET.get('order_id')
     order = ShopifyOrder.objects.filter(order_id=order_id).first()
     print(order)
     if order:
         pass
     else:
-        time.sleep(5)
+        time.sleep(2)
         order = ShopifyOrder.objects.filter(order_id=order_id).first()
 
     if order.payment_status == 'pending_payment':
@@ -71,9 +71,12 @@ def from_bml(request):
     currency = 'MVR'
 
     check_signature_string = 'amount=' + str(mvr_amount) + '&currency=' + currency + '&apiKey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjM2ZTIwNzhlLWZhM2ItNGMyZi1iNDJlLWM5MDc4Njg5YWYyOSIsImNvbXBhbnlJZCI6IjYxMTgwNDA5ZmQ0NTRmMDAwODUyMmQ5MCIsImlhdCI6MTYyODk2Mzg0OSwiZXhwIjo0Nzg0NjM3NDQ5fQ.Y1Vvyf1BRrEjGSSfvkwPH0FUZtDvVFJ8vwoLmKVH7FU'
-    hash_object = hashlib.sha1(check_signature_string)
-    pbHash = hash_object.hexdigest()
-    return JsonResponse({'pbHash': pbHash,'transactionId':transactionId,'signature':signature})
+    print(check_signature_string)
+    print(check_signature_string.encode())
+    sha_1 = hashlib.sha1()
+    sha_1.update(check_signature_string.encode())
+
+    return JsonResponse({'pbHash': pbHash,'transactionId':transactionId,'signature':signature,'sign_check':sha_1.hexdigest()})
 
 @csrf_exempt
 def order_created(request):
