@@ -32,7 +32,7 @@ def checkout(request):
         if order:
             pass
         else:
-            time.sleep(1)
+            time.sleep(2)
             order = ShopifyOrder.objects.filter(order_id=order_id).first()
 
     if order.payment_status == 'pending_payment':
@@ -85,6 +85,7 @@ def from_bml(request):
         if signature ==sha_1.hexdigest():
             order.payment_status = state
             order.save()
+            return redirect(order.order_status_url)
             
         else:
             return JsonResponse({'error':'Signature missmatch'})
