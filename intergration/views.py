@@ -68,7 +68,6 @@ def check_order_status(request):
     if order:
         if order.payment_status == 'CONFIRMED':
             status  ='Paid'
-
     return JsonResponse({'payment_status': status})
 
 
