@@ -15,7 +15,7 @@ from django.shortcuts import redirect
 
 # Load your settings or environment variables
 SHOPIFY_WEBHOOK_SECRET = 'b35fd35dabc267ac0b1e9f2a1c91b67a'
-SHOPIFY_API_KEY = ' '
+SHOPIFY_API_KEY = '6e6e4347ad0221e2fb799d32ba4a7e25'
 SHOPIFY_PASSWORD = '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'
 SHOP_NAME = '2e3894-da'
 
@@ -55,6 +55,7 @@ def checkout(request):
             order.payment_status = 'pending_payment'
             order.gateway_id = payment_response['id']
             order.save()
+
         return redirect(order.payment_url)
     elif order.payment_status == 'CONFIRMED':
         return redirect(order.order_status_url)
@@ -72,7 +73,6 @@ def check_order_status(request):
 
 
 def from_bml(request):
-
     transactionId = request.GET.get('transactionId')
     state = request.GET.get('state')
     signature = request.GET.get('signature')
@@ -88,6 +88,7 @@ def from_bml(request):
         if signature ==sha_1.hexdigest():
             order.payment_status = state
             order.save()
+            update_order_status(order_id.order_id)
             return redirect(order.order_status_url)
             
         else:
@@ -96,7 +97,6 @@ def from_bml(request):
         order.payment_status = state
         order.save()
         return JsonResponse({'error':'Payment failed.'})
-    return JsonResponse({'transactionId':transactionId,'signature':signature,'sign_check':sha_1.hexdigest()})
 
 @csrf_exempt
 def order_created(request):
@@ -156,7 +156,25 @@ def process_payment(order_data):
     # update_order_status(order_data['id'], payment_response['url'])
 
 
-def update_order_status(order_id, payment_response):
+def update_order_status(order_id):
+    # status = 'paid' if payment_response.get('success') else 'failed'
+    update_data = {
+        'order': {
+            'id': order_id,
+            'financial_status':'paid',
+        }
+    }
+
+    url = f'https://{SHOPIFY_API_KEY}:{SHOPIFY_PASSWORD}@{SHOP_NAME}.myshopify.com/admin/api/2023-01/orders/{order_id}.json'
+    print(url)
+    response = requests.put(url, json=update_data)
+
+    if response.status_code == 200:
+        print('Order status updated:', response.json())
+    else:
+        print('Failed to update order status:', response.text)
+
+def update_order_payment_url(order_id, payment_response):
     # status = 'paid' if payment_response.get('success') else 'failed'
     print(payment_response)
     update_data = {
