@@ -20,7 +20,6 @@ def checkout(request):
     time.sleep(1)
     order_id = request.GET.get('order_id')
     order = ShopifyOrder.objects.filter(order_id=order_id).first()
-    print(order)
     if order:
         pass
     else:
@@ -105,7 +104,6 @@ def order_created(request):
         #     return HttpResponse('Forbidden', status=403)
 
         order_data = json.loads(body)
-        print(order_data)
         shop_id = request.GET.get('shop_id')
         order = ShopifyOrder()
         order.order_id = order_data['id']
@@ -188,7 +186,6 @@ def update_order_status(order):
 def update_order_payment_url(order_id, payment_response):
     # status = 'paid' if payment_response.get('success') else 'failed'
 
-    print(payment_response)
     update_data = {
         'order': {
             'id': order_id,
