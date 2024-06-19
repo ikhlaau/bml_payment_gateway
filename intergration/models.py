@@ -16,6 +16,7 @@ class Shopify(models.Model):
 
 class ShopifyOrder(models.Model):
     order_id = models.CharField(max_length=200,null=False,blank=False)
+    shop_id = models.CharField(max_length=200,null=False,blank=False)
     checkout_id = models.CharField(max_length=200,null=False,blank=False)
     cart_token = models.CharField(max_length=200,null=False,blank=False)
     checkout_token = models.CharField(max_length=200,null=False,blank=False)

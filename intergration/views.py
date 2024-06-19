@@ -14,10 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import redirect
 
 # Load your settings or environment variables
-SHOPIFY_WEBHOOK_SECRET = 'b35fd35dabc267ac0b1e9f2a1c91b67a'
-SHOPIFY_API_KEY = '6e6e4347ad0221e2fb799d32ba4a7e25'
-SHOPIFY_PASSWORD = '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'
-SHOP_NAME = '2e3894-da'
+
 
 def checkout(request):
     time.sleep(1)
@@ -88,7 +85,7 @@ def from_bml(request):
         if signature ==sha_1.hexdigest():
             order.payment_status = state
             order.save()
-            update_order_status(order_id.order_id)
+            update_order_status(order)
             return redirect(order.order_status_url)
             
         else:
@@ -109,9 +106,10 @@ def order_created(request):
 
         order_data = json.loads(body)
         print(order_data)
-
+        shop_id = request.GET.get('shop_id')
         order = ShopifyOrder()
         order.order_id = order_data['id']
+        order.shop_id = shop_id
         order.checkout_id = order_data['checkout_id']
         order.cart_token = order_data['cart_token']
         order.checkout_token = order_data['checkout_token']
@@ -157,11 +155,16 @@ def process_payment(order_data):
     # update_order_status(order_data['id'], payment_response['url'])
 
 
-def update_order_status(order_id):
+def update_order_status(order):
     # status = 'paid' if payment_response.get('success') else 'failed'
+    shop = Shopify.objects.filter(shop_name = order.shop_id).first()
+    SHOPIFY_API_KEY = shop.api_key
+    SHOP_NAME = shop.shop_name
+    SHOPIFY_PASSWORD = shop.password
+
     update_data = {
         'order': {
-            'id': order_id,
+            'id': order.order_id,
             'financial_status':'paid',
         }
     }
@@ -177,6 +180,7 @@ def update_order_status(order_id):
 
 def update_order_payment_url(order_id, payment_response):
     # status = 'paid' if payment_response.get('success') else 'failed'
+
     print(payment_response)
     update_data = {
         'order': {
