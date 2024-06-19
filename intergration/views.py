@@ -108,6 +108,7 @@ def order_created(request):
         #     return HttpResponse('Forbidden', status=403)
 
         order_data = json.loads(body)
+        print(order_data)
 
         order = ShopifyOrder()
         order.order_id = order_data['id']
