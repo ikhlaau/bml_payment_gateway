@@ -161,6 +161,7 @@ def update_order_status(order):
     SHOPIFY_API_KEY = shop.api_key
     SHOP_NAME = shop.shop_name
     SHOPIFY_PASSWORD = shop.password
+    order_id = order.order_id
 
     update_data = {
         'order': {
