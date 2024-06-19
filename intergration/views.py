@@ -169,10 +169,16 @@ def update_order_status(order):
             'financial_status':'paid',
         }
     }
+    headers = {
+        'Content-Type': 'application/json',
+        'X-Shopify-Access-Token': SHOPIFY_PASSWORD
+    }
 
-    url = f'https://{SHOPIFY_API_KEY}:{SHOPIFY_PASSWORD}@{SHOP_NAME}.myshopify.com/admin/api/2023-01/orders/{order_id}.json'
+    url = f'https://{SHOP_NAME}.myshopify.com/admin/api/2023-01/orders/{order_id}.json'
+    # url = f'https://glamorgaze.shop/admin/api/2023-04/orders/{ORDER_ID}.json'
+
     print(url)
-    response = requests.put(url, json=update_data)
+    response = requests.put(url, json=update_data,headers=headers)
 
     if response.status_code == 200:
         print('Order status updated:', response.json())
