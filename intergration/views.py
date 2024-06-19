@@ -100,7 +100,6 @@ def from_bml(request):
 
 @csrf_exempt
 def order_created(request):
-    print(body)
     if request.method == 'POST':
         # Verify the webhook
         hmac_header = request.headers.get('X-Shopify-Hmac-Sha256')
