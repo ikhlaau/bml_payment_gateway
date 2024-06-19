@@ -30,6 +30,10 @@ def checkout(request):
         else:
             time.sleep(2)
             order = ShopifyOrder.objects.filter(order_id=order_id).first()
+            if order:
+                pass
+            else:
+                return redirect("https://glamorgaze.shop")
 
     if order.payment_status == 'pending_payment':
         return redirect(order.payment_url)
@@ -96,6 +100,7 @@ def from_bml(request):
 
 @csrf_exempt
 def order_created(request):
+    print(body)
     if request.method == 'POST':
         # Verify the webhook
         hmac_header = request.headers.get('X-Shopify-Hmac-Sha256')
