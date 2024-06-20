@@ -193,12 +193,14 @@ def update_order_payment(order):
 
     res_data  = response.json()
 
-    print(res_data)
+    # print(res_data)
+    if res_data['transactions'][0]['status'] == 'pending':
 
-    update_data = {"transaction":{"currency":order.presentment_currency,"amount":order.total_price,"kind":"capture","parent_id":res_data['transactions'][0]['id']}}
-    print(update_data)
-    # response = requests.get(url, json=update_data,headers=headers)
-
+        update_data = {"transaction":{"currency":order.presentment_currency,"amount":order.total_price,"kind":"capture","parent_id":res_data['transactions'][0]['id']}}
+        print(update_data)
+        url = f'https://{SHOP_NAME}.myshopify.com/admin/api/2023-07/orders/{order_id}/transactions.json'
+        response = requests.post(url, json=update_data,headers=headers)
+        print(response.json())
     if response.status_code == 200:
         print('Order status updated:', response.json())
     else:
