@@ -109,7 +109,7 @@ def from_bml(request):
         order = ShopifyOrder.objects.filter(gateway_id=transactionId).first()
         order.payment_status = state
         order.save()
-        return JsonResponse({'error':'Payment failed.'})
+        return redirect(order.order_status_url)
 
 @csrf_exempt
 def order_created(request):
