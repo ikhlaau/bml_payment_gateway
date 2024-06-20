@@ -24,20 +24,16 @@ def checkout(request):
     if order:
         pass
     else:
-            shop_id = request.GET.get('shop_id')
-            total_price = request.GET.get('total_price')
-            presentment_currency = request.GET.get('presentment_currency')
-            order = ShopifyOrder()
-            order.order_id = order_id
-            order.shop_id = shop_id
-            order.presentment_currency = presentment_currency
-            order.total_price = total_price
-            order.payment_status = 'pending_gateway_url'
-            order.save()
-
-
-        else:
-            return JsonResponse({'Error': 'Payment failed.'})
+        shop_id = request.GET.get('shop_id')
+        total_price = request.GET.get('total_price')
+        presentment_currency = request.GET.get('presentment_currency')
+        order = ShopifyOrder()
+        order.order_id = order_id
+        order.shop_id = shop_id
+        order.presentment_currency = presentment_currency
+        order.total_price = total_price
+        order.payment_status = 'pending_gateway_url'
+        order.save()
 
         
 
