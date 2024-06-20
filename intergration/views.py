@@ -39,7 +39,7 @@ def checkout(request):
         return redirect(order.payment_url)
     elif order.payment_status in('pending_gateway_url','CANCELLED'):
         shop = Shopify.objects.filter(shop_name = order.shop_id).first()
-        if order.presentment_currency == 'MRf':
+        if order.presentment_currency == 'MVR':
             pg_amount = round(order.total_price *100)
         else:
             pg_amount = round(float(order.total_price)*15.42*100)
@@ -89,7 +89,7 @@ def from_bml(request):
 
         currency = 'MVR'
 
-        if order.presentment_currency == 'MRf':
+        if order.presentment_currency == 'MVR':
             mvr_amount = round(order.total_price *100)
         else:
             mvr_amount = round(float(order.total_price)*15.42*100)
