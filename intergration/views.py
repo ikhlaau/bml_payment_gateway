@@ -38,6 +38,7 @@ def checkout(request):
     if order.payment_status == 'pending_payment':
         return redirect(order.payment_url)
     elif order.payment_status == 'pending_gateway_url':
+        shop = Shopify.objects.filter(shop_name = order.shop_id).first()
         payment_details = {
             'amount': round(float(order.total_price)*15.42*100),
             'currency': 'MVR',
@@ -47,7 +48,7 @@ def checkout(request):
         }
 
         # Send request to your custom payment gatewa
-        response = requests.post('https://api.merchants.bankofmaldives.com.mv/public/v2/transactions', json=payment_details, headers={"Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjM2ZTIwNzhlLWZhM2ItNGMyZi1iNDJlLWM5MDc4Njg5YWYyOSIsImNvbXBhbnlJZCI6IjYxMTgwNDA5ZmQ0NTRmMDAwODUyMmQ5MCIsImlhdCI6MTYyODk2Mzg0OSwiZXhwIjo0Nzg0NjM3NDQ5fQ.Y1Vvyf1BRrEjGSSfvkwPH0FUZtDvVFJ8vwoLmKVH7FU"})
+        response = requests.post('https://api.merchants.bankofmaldives.com.mv/public/v2/transactions', json=payment_details, headers={"Authorization":shop.bml_key})
         payment_response = response.json()
         # print(payment_response)
         if response.status_code == 201:
@@ -78,11 +79,12 @@ def from_bml(request):
     signature = request.GET.get('signature')
     if state == "CONFIRMED":
         order = ShopifyOrder.objects.filter(gateway_id=transactionId).first()
+        shop =  Shopify.objects.filter(shop_name=order.shop_id).first()
 
         mvr_amount  =round(float(order.total_price)*15.42*100)
         currency = 'MVR'
 
-        check_signature_string = 'amount=' + str(mvr_amount) + '&currency=' + currency + '&apiKey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjM2ZTIwNzhlLWZhM2ItNGMyZi1iNDJlLWM5MDc4Njg5YWYyOSIsImNvbXBhbnlJZCI6IjYxMTgwNDA5ZmQ0NTRmMDAwODUyMmQ5MCIsImlhdCI6MTYyODk2Mzg0OSwiZXhwIjo0Nzg0NjM3NDQ5fQ.Y1Vvyf1BRrEjGSSfvkwPH0FUZtDvVFJ8vwoLmKVH7FU'
+        check_signature_string = 'amount=' + str(mvr_amount) + '&currency=' + currency + '&apiKey='+shop.bml_key
         sha_1 = hashlib.sha1()
         sha_1.update(check_signature_string.encode('utf-8'))
         if signature ==sha_1.hexdigest():
@@ -136,6 +138,8 @@ def verify_webhook(hmac_header, body):
 def process_payment(order_data):
     # Extract necessary details from order_data
     order = ShopifyOrder.objects.filter(order_id=order_data['id']).first()
+    shop = Shopify.objects.filter(shop_name = order.shop_id).first()
+
     payment_details = {
         'amount': round(float(order.total_price)*15.42*100),
         'currency': 'MVR',
@@ -145,7 +149,7 @@ def process_payment(order_data):
     }
 
     # Send request to your custom payment gatewa
-    response = requests.post('https://api.merchants.bankofmaldives.com.mv/public/v2/transactions', json=payment_details, headers={"Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjM2ZTIwNzhlLWZhM2ItNGMyZi1iNDJlLWM5MDc4Njg5YWYyOSIsImNvbXBhbnlJZCI6IjYxMTgwNDA5ZmQ0NTRmMDAwODUyMmQ5MCIsImlhdCI6MTYyODk2Mzg0OSwiZXhwIjo0Nzg0NjM3NDQ5fQ.Y1Vvyf1BRrEjGSSfvkwPH0FUZtDvVFJ8vwoLmKVH7FU"})
+    response = requests.post('https://api.merchants.bankofmaldives.com.mv/public/v2/transactions', json=payment_details, headers={"Authorization":shop.bml_key})
     payment_response = response.json()
     if response.status_code == 201:
         order.payment_url = payment_response['url']
