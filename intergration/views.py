@@ -37,10 +37,14 @@ def checkout(request):
 
     if order.payment_status == 'pending_payment':
         return redirect(order.payment_url)
-    elif order.payment_status == 'pending_gateway_url':
+    elif order.payment_status in('pending_gateway_url','CANCELLED'):
         shop = Shopify.objects.filter(shop_name = order.shop_id).first()
+        if order.currency == 'MVR':
+            pg_amount = round(order.total_price *100)
+        else:
+            pg_amount = round(float(order.total_price)*15.42*100)
         payment_details = {
-            'amount': round(float(order.total_price)*15.42*100),
+            'amount': pg_amount,
             'currency': 'MVR',
             'customerReference':str(order.order_id),
             'localId':str(order.order_id),
@@ -79,13 +83,16 @@ def from_bml(request):
     transactionId = request.GET.get('transactionId')
     state = request.GET.get('state')
     signature = request.GET.get('signature')
-    print(state)
     if state == "CONFIRMED":
         order = ShopifyOrder.objects.filter(gateway_id=transactionId).first()
         shop =  Shopify.objects.filter(shop_name=order.shop_id).first()
 
-        mvr_amount  =round(float(order.total_price)*15.42*100)
         currency = 'MVR'
+        
+        if order.currency == 'MVR':
+            mvr_amount = round(order.total_price *100)
+        else:
+            mvr_amount = round(float(order.total_price)*15.42*100)
 
         check_signature_string = 'amount=' + str(mvr_amount) + '&currency=' + currency + '&apiKey='+shop.bml_key
         sha_1 = hashlib.sha1()
@@ -99,6 +106,7 @@ def from_bml(request):
         else:
             return JsonResponse({'error':'Signature missmatch'})
     else:
+        order = ShopifyOrder.objects.filter(gateway_id=transactionId).first()
         order.payment_status = state
         order.save()
         return JsonResponse({'error':'Payment failed.'})
@@ -153,31 +161,6 @@ def verify_webhook(hmac_header, body):
     hash = hmac.new(SHOPIFY_WEBHOOK_SECRET.encode(), body, hashlib.sha256).digest()
     calculated_hmac = hash.hex()
     return hmac.compare_digest(calculated_hmac, hmac_header)
-
-def process_payment(order_data):
-    # Extract necessary details from order_data
-    order = ShopifyOrder.objects.filter(order_id=order_data['id']).first()
-    shop = Shopify.objects.filter(shop_name = order.shop_id).first()
-
-    payment_details = {
-        'amount': round(float(order.total_price)*15.42*100),
-        'currency': 'MVR',
-        'customerReference':str(order_data['id']),
-        'localId':str(order_data['id']),
-        "redirectUrl":"https://bml-payment-gateway-zwkoz.ondigitalocean.app/payments/from_bml"
-    }
-
-    # Send request to your custom payment gatewa
-    response = requests.post('https://api.merchants.bankofmaldives.com.mv/public/v2/transactions', json=payment_details, headers={"Authorization":shop.bml_key})
-    payment_response = response.json()
-    if response.status_code == 201:
-        order.payment_url = payment_response['url']
-        order.payment_status = 'pending_payment'
-        order.save()
-        print('Payment Success:')
-    else:
-        print('Payment failed:')
-    # update_order_status(order_data['id'], payment_response['url'])
 
 
 def update_order_status(order):
