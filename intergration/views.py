@@ -17,23 +17,23 @@ from django.shortcuts import redirect
 
 
 def checkout(request):
+
     time.sleep(1)
     order_id = request.GET.get('order_id')
     order = ShopifyOrder.objects.filter(order_id=order_id).first()
     if order:
         pass
     else:
-        time.sleep(1)
-        order = ShopifyOrder.objects.filter(order_id=order_id).first()
-        if order:
-            pass
+        if request.method == 'POST':
+            body = request.body
+            order_data = json.loads(body)
+            shop_id = request.GET.get('shop_id')
+            print(order_data)
+            print(shop_id)
         else:
-            time.sleep(2)
-            order = ShopifyOrder.objects.filter(order_id=order_id).first()
-            if order:
-                pass
-            else:
-                return redirect("https://glamorgaze.shop")
+            return JsonResponse({'Error': 'Payment failed.'})
+
+        
 
     if order.payment_status == 'pending_payment':
         return redirect(order.payment_url)
@@ -70,6 +70,8 @@ def check_order_status(request):
     if order:
         if order.payment_status == 'CONFIRMED':
             status  ='Paid'
+    else:
+        status  ='No order'
     return JsonResponse({'payment_status': status})
 
 
@@ -111,21 +113,37 @@ def order_created(request):
 
         order_data = json.loads(body)
         shop_id = request.GET.get('shop_id')
-        order = ShopifyOrder()
-        order.order_id = order_data['id']
-        order.shop_id = shop_id
-        order.checkout_id = order_data['checkout_id']
-        order.cart_token = order_data['cart_token']
-        order.checkout_token = order_data['checkout_token']
-        order.confirmation_number = order_data['confirmation_number']
-        order.order_number = order_data['order_number']
-        order.order_status_url = order_data['order_status_url']
-        order.token = order_data['token']
-        order.reference = order_data['reference']
-        order.total_price = order_data['total_price']
-        order.presentment_currency = order_data['presentment_currency']
-        order.payment_status = 'pending_gateway_url'
-        order.save()
+        order = ShopifyOrder.objects.filter(order_id=order_data['id']).first()
+
+        if order:
+            order.shop_id = shop_id
+            order.checkout_id = order_data['checkout_id']
+            order.cart_token = order_data['cart_token']
+            order.checkout_token = order_data['checkout_token']
+            order.confirmation_number = order_data['confirmation_number']
+            order.order_number = order_data['order_number']
+            order.order_status_url = order_data['order_status_url']
+            order.token = order_data['token']
+            order.reference = order_data['reference']
+            order.total_price = order_data['total_price']
+            order.presentment_currency = order_data['presentment_currency']
+            order.save()
+        else:            
+            order = ShopifyOrder()
+            order.order_id = order_data['id']
+            order.shop_id = shop_id
+            order.checkout_id = order_data['checkout_id']
+            order.cart_token = order_data['cart_token']
+            order.checkout_token = order_data['checkout_token']
+            order.confirmation_number = order_data['confirmation_number']
+            order.order_number = order_data['order_number']
+            order.order_status_url = order_data['order_status_url']
+            order.token = order_data['token']
+            order.reference = order_data['reference']
+            order.total_price = order_data['total_price']
+            order.presentment_currency = order_data['presentment_currency']
+            order.payment_status = 'pending_gateway_url'
+            order.save()
 
         return HttpResponse('Webhook received', status=200)
     return HttpResponse('Method not allowed', status=405)
