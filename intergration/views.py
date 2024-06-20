@@ -57,14 +57,15 @@ def checkout(request):
         # Send request to your custom payment gatewa
         response = requests.post('https://api.merchants.bankofmaldives.com.mv/public/v2/transactions', json=payment_details, headers={"Authorization":shop.bml_key})
         payment_response = response.json()
-        # print(payment_response)
+        print(payment_response)
         if response.status_code == 201:
             order.payment_url = payment_response['url']
             order.payment_status = 'pending_payment'
             order.gateway_id = payment_response['id']
             order.save()
-
-        return redirect(order.payment_url)
+            return redirect(order.payment_url)
+        else:
+            return redirect(order.order_status_url)
     elif order.payment_status == 'CONFIRMED':
         return redirect(order.order_status_url)
     else:
