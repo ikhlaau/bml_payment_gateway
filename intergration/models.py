@@ -9,6 +9,7 @@ class Shopify(models.Model):
     api_key = models.CharField(max_length=250,null=False,blank=False)
     shop_name = models.CharField(max_length=250,null=True)
     password = models.CharField(max_length=250,null=True)
+    bml_key = models.CharField(max_length=500,null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     def __str__(self):
