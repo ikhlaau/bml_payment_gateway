@@ -33,6 +33,7 @@ def checkout(request):
         order.presentment_currency = presentment_currency
         order.total_price = total_price
         order.payment_status = 'pending_gateway_url'
+        order_status_url = request.META.get('HTTP_REFERER')
         order.save()
 
         
