@@ -195,7 +195,7 @@ def update_order_payment(order):
 
     print(res_data)
 
-    update_data = {"transaction":{"currency":order.presentment_currency,"amount":order.total_price,"kind":"capture","parent_id":res_data['res_data'][0]['id']}}
+    update_data = {"transaction":{"currency":order.presentment_currency,"amount":order.total_price,"kind":"capture","parent_id":res_data['transactions'][0]['id']}}
     print(update_data)
     # response = requests.get(url, json=update_data,headers=headers)
 
