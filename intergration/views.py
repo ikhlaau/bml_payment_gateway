@@ -103,7 +103,7 @@ def from_bml(request):
         if signature ==sha_1.hexdigest():
             order.payment_status = state
             order.save()
-            update_order_status(order)
+            update_order_payment(order)
             return redirect(order.order_status_url)
             
         else:
@@ -166,8 +166,9 @@ def verify_webhook(hmac_header, body):
     return hmac.compare_digest(calculated_hmac, hmac_header)
 
 
-def update_order_status(order):
+def update_order_payment(order):
     # status = 'paid' if payment_response.get('success') else 'failed'
+
     shop = Shopify.objects.filter(shop_name = order.shop_id).first()
     SHOPIFY_API_KEY = shop.api_key
     SHOP_NAME = shop.shop_name
@@ -185,10 +186,18 @@ def update_order_status(order):
         'X-Shopify-Access-Token': SHOPIFY_PASSWORD
     }
 
-    url = f'https://{SHOP_NAME}.myshopify.com/admin/api/2023-01/orders/{order_id}.json'
+    url = f'https://{SHOP_NAME}.myshopify.com/admin/api/2023-07/orders/{order_id}/transactions.json'
     # url = f'https://glamorgaze.shop/admin/api/2023-04/orders/{ORDER_ID}.json'
 
-    response = requests.put(url, json=update_data,headers=headers)
+    response = requests.get(url, headers=headers)
+
+    res_data  = response.json()
+
+    print(res_data)
+
+    update_data = {"transaction":{"currency":order.presentment_currency,"amount":order.total_price,"kind":"capture","parent_id":res_data['res_data'][0]['id']}}
+    print(update_data)
+    # response = requests.get(url, json=update_data,headers=headers)
 
     if response.status_code == 200:
         print('Order status updated:', response.json())
