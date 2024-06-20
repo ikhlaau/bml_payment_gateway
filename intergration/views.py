@@ -57,7 +57,6 @@ def checkout(request):
         # Send request to your custom payment gatewa
         response = requests.post('https://api.merchants.bankofmaldives.com.mv/public/v2/transactions', json=payment_details, headers={"Authorization":shop.bml_key})
         payment_response = response.json()
-        print(payment_response)
         if response.status_code == 201:
             order.payment_url = payment_response['url']
             order.payment_status = 'pending_payment'
@@ -189,7 +188,6 @@ def update_order_status(order):
     url = f'https://{SHOP_NAME}.myshopify.com/admin/api/2023-01/orders/{order_id}.json'
     # url = f'https://glamorgaze.shop/admin/api/2023-04/orders/{ORDER_ID}.json'
 
-    print(url)
     response = requests.put(url, json=update_data,headers=headers)
 
     if response.status_code == 200:
@@ -215,7 +213,7 @@ def update_order_payment_url(order_id, payment_response):
     url = f'https://{SHOPIFY_API_KEY}:{SHOPIFY_PASSWORD}@{SHOP_NAME}.myshopify.com/admin/api/2023-01/orders/{order_id}.json'
     print(url)
     response = requests.put(url, json=update_data)
-
+    print(response.json())
     if response.status_code == 200:
         print('Order status updated:', response.json())
     else:
