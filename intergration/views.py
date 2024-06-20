@@ -79,6 +79,7 @@ def from_bml(request):
     transactionId = request.GET.get('transactionId')
     state = request.GET.get('state')
     signature = request.GET.get('signature')
+    print(state)
     if state == "CONFIRMED":
         order = ShopifyOrder.objects.filter(gateway_id=transactionId).first()
         shop =  Shopify.objects.filter(shop_name=order.shop_id).first()
